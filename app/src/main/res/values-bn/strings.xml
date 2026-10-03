@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">সাথী</string>
+    <string name="app_tagline">এআই ফোন এজেন্ট</string>
+
+    <string name="stage_ready">প্রস্তুত</string>
+    <string name="stage_listening">শুনছি…</string>
+    <string name="stage_understanding">বুঝছি…</string>
+    <string name="stage_planning">পরিকল্পনা করছি…</string>
+    <string name="stage_executing">কাজ করছি…</string>
+    <string name="stage_completed">সম্পন্ন</string>
+    <string name="stage_failed">শেষ করা যায়নি</string>
+
+    <string name="mic_start">শোনা শুরু করো</string>
+    <string name="mic_stop">শোনা বন্ধ করো</string>
+    <string name="hint_tap_to_speak">মাইকে চাপ দিয়ে বাংলা বা ইংরেজিতে বলুন</string>
+    <string name="you_said">আপনি বলেছেন</string>
+    <string name="plan_title">পরিকল্পনা</string>
+    <string name="response_title">সাথী</string>
+    <string name="log_title">ডেভেলপার লগ</string>
+    <string name="try_saying">বলে দেখুন</string>
+    <string name="type_command">কমান্ড লিখুন</string>
+    <string name="send">পাঠাও</string>
+    <string name="settings">সেটিংস</string>
+    <string name="permissions">অনুমতি</string>
+    <string name="back">পেছনে</string>
+    <string name="pause">থামাও</string>
+    <string name="resume">আবার শুরু</string>
+    <string name="stop">বন্ধ</string>
+
+    <string name="status_pending">অপেক্ষায়</string>
+    <string name="status_running">চলছে</string>
+    <string name="status_done">হয়েছে</string>
+    <string name="status_sent">পাঠানো হয়েছে · যাচাই হয়নি</string>
+    <string name="status_needs_setup">স্ক্রিন নিয়ন্ত্রণ লাগবে</string>
+    <string name="status_failed">ব্যর্থ</string>
+    <string name="status_skipped">বাদ দেওয়া হয়েছে</string>
+    <string name="sent_explainer">পাঠানো হয়েছে, কিন্তু স্ক্রিনে নিশ্চিত হয়নি। স্ক্রিন নিয়ন্ত্রণ চালু করলে সাথী প্রতিটি ধাপ যাচাই করতে পারবে।</string>
+
+    <string name="mic_missing_banner">মাইক্রোফোনের অনুমতি বন্ধ। তবু আপনি কমান্ড লিখে দিতে পারেন।</string>
+    <string name="set_up">চালু করুন</string>
+
+    <string name="voice_error_no_speech">কিছু শুনতে পাইনি। মাইকে চাপ দিয়ে আবার বলুন।</string>
+    <string name="voice_error_network">এখন কথা চিনতে ইন্টারনেট লাগছে। ইন্টারনেট দেখুন, অথবা সেটিংস থেকে \"অফলাইন রিকগনিশন\" বন্ধ করুন।</string>
+    <string name="voice_error_permission">মাইক্রোফোনের অনুমতি বন্ধ। অনুমতি পেজ থেকে চালু করুন।</string>
+    <string name="voice_error_busy">স্পিচ সার্ভিস ব্যস্ত। একটু পরে আবার চেষ্টা করুন।</string>
+    <string name="voice_error_unavailable">এই ফোনে কথা চেনার কোনো সার্ভিস নেই। Google অ্যাপ ইনস্টল বা আপডেট করুন, অথবা কমান্ড লিখে দিন।</string>
+    <string name="voice_error_language">এই ভাষার কথা চেনার প্যাক ইনস্টল নেই। ফোনের ভয়েস সেটিংস থেকে নামান, অথবা সেটিংসে ভাষা বদলান।</string>
+    <string name="voice_error_other">কথা চেনা হঠাৎ থেমে গেছে। আবার চেষ্টা করুন।</string>
+
+    <string name="onboarding_title">শুরু করার আগে</string>
+    <string name="onboarding_body">সাথী শুধু সেটুকুই অনুমতি চায় যা প্রতিটি কাজে লাগে। পরে যেকোনোটা বদলাতে পারবেন।</string>
+    <string name="perm_mic_title">মাইক্রোফোন</string>
+    <string name="perm_mic_body">আপনার কমান্ড শোনার জন্য। মাইক বোতাম চালু থাকলেই শুধু শোনে। কথাকে লেখায় বদলায় আপনার ফোনের স্পিচ সার্ভিস, যা ইন্টারনেট ব্যবহার করতে পারে।</string>
+    <string name="perm_recognizer_title">কথা চেনার সার্ভিস</string>
+    <string name="perm_recognizer_body">আপনার ফোন দেয় (সাধারণত Google অ্যাপ)।</string>
+    <string name="perm_tts_title">বাংলা কণ্ঠ</string>
+    <string name="perm_tts_body">সাথী যেন বাংলায় বলে উত্তর দিতে পারে। ফোনের টেক্সট-টু-স্পিচ ব্যবহার করে।</string>
+    <string name="perm_a11y_title">স্ক্রিন নিয়ন্ত্রণ (Accessibility)</string>
+    <string name="perm_a11y_body">স্ক্রিন পড়া, চাপ দেওয়া, স্ক্রল, লেখা, পেছনে যাওয়া এবং প্রতিটি ধাপ ঠিকমতো হলো কিনা যাচাইয়ের জন্য। সাথী পেছনে থাকা অবস্থায় অ্যাপ খুলতেও এটা লাগে।</string>
+    <string name="perm_files_title">ফাইল</string>
+    <string name="perm_files_body">ছবি, ভিডিও ও PDF খোঁজার জন্য দরকার। পরের একটি ধাপে আসছে।</string>
+    <string name="perm_granted">চালু</string>
+    <string name="perm_available">আছে</string>
+    <string name="perm_missing">নেই</string>
+    <string name="perm_allow">অনুমতি দিন</string>
+    <string name="perm_open_settings">সেটিংস খুলুন</string>
+    <string name="perm_install_voice">কণ্ঠ ইনস্টল করুন</string>
+    <string name="perm_coming">শিগগিরই</string>
+    <string name="continue_label">এগিয়ে যান</string>
+
+    <string name="settings_language">কমান্ডের ভাষা</string>
+    <string name="settings_language_body">সাথী যে ভাষায় শুনবে ও উত্তর দেবে। বাংলা-ইংরেজি মেশানো কথা দুটোতেই চলে।</string>
+    <string name="lang_bengali">বাংলা</string>
+    <string name="lang_english">English</string>
+    <string name="settings_speak">উত্তর বলে শোনাও</string>
+    <string name="settings_speak_body">সাথীর উত্তর জোরে পড়ে শোনায়।</string>
+    <string name="settings_offline">অফলাইন রিকগনিশন</string>
+    <string name="settings_offline_body">অফলাইন ভাষা প্যাক থাকলে কথা ফোনেই থাকে। প্যাক না থাকলে কমান্ড কাজ করবে না।</string>
+    <string name="settings_log">ডেভেলপার লগ দেখাও</string>
+    <string name="settings_log_body">হোম স্ক্রিনে প্রতিটি কমান্ড, পরিকল্পনা, কাজ ও ফলাফল দেখায়।</string>
+    <string name="settings_test_voice">কণ্ঠ পরীক্ষা</string>
+    <string name="settings_privacy_title">গোপনীয়তা</string>
+    <string name="settings_privacy_body">কমান্ড বোঝা, পরিকল্পনা ও অ্যাপ খোলা সব এই ফোনেই হয়। সাথীর ইন্টারনেট অনুমতি নেই, নিজে কোথাও কিছু পাঠায় না। কথা থেকে লেখা ও লেখা থেকে কথা করে আপনার ফোনের নিজস্ব সার্ভিস।</string>
+    <string name="a11y_service_description">ভয়েস কমান্ড দিলে সাথী যেন স্ক্রিনে কী আছে দেখতে পারে এবং আপনার হয়ে চাপ দিতে, স্ক্রল করতে ও লিখতে পারে। সাথী শুধু কমান্ড চলার সময় স্ক্রিন পড়ে, পাসওয়ার্ডের ঘর কখনো পড়ে না, ফোনের বাইরে কিছু পাঠায় না।</string>
+    <string name="a11y_missing_banner">স্ক্রিন নিয়ন্ত্রণ বন্ধ। চালু করলে সাথী আপনার হয়ে চাপ দিতে, স্ক্রল করতে ও লিখতে পারবে।</string>
+    <string name="hands_free_title">সবসময় শুনুন</string>
+    <string name="hands_free_body">সাথী বন্ধ থাকলেও শুনতে থাকবে। মাইক চালু থাকলে নোটিফিকেশনে দেখা যাবে।</string>
+    <string name="listening_channel">হ্যান্ডস-ফ্রি শোনা</string>
+    <string name="listening_title">সাথী শুনছে</string>
+    <string name="listening_body">কমান্ড বলুন। মাইক বন্ধ করতে \"বন্ধ\" চাপুন।</string>
+    <string name="perm_open_a11y">Accessibility সেটিংস খুলুন</string>
+    <string name="perm_a11y_steps">Accessibility-তে \"সাথী\" খুলে (কখনো \"Installed apps\" বা \"Downloaded apps\"-এর ভেতরে থাকে) চালু করুন। সুইচ ধূসর থাকলে \"App info\" চাপুন, তারপর ⋮ মেনু থেকে \"Allow restricted settings\" চাপুন, তারপর আবার চেষ্টা করুন।</string>
+    <string name="perm_app_info">App info</string>
+    <string name="perm_notif_title">নোটিফিকেশন</string>
+    <string name="perm_notif_body">হ্যান্ডস-ফ্রি মোডে \"সাথী শুনছে\" নোটিফিকেশন দেখায়, যাতে আপনি সবসময় জানেন মাইক চালু আছে।</string>
+    <string name="stage_confirm">আপনার উত্তরের অপেক্ষায়</string>
+    <string name="status_confirm">আপনার \"হ্যাঁ\" লাগবে</string>
+</resources>
