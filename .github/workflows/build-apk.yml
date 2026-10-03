@@ -1,0 +1,49 @@
+name: Build APK
+
+# Builds Sathi on every push and publishes the APK at a fixed download link:
+# https://github.com/<owner>/<repo>/releases/download/sathi-latest/sathi.apk
+on:
+  push:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: build-apk-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Test and build
+        run: ./gradlew :core:test :app:testDebugUnitTest :app:assembleDebug --stacktrace
+
+      - name: Collect APK
+        run: cp app/build/outputs/apk/debug/app-debug.apk sathi.apk
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sathi-apk
+          path: sathi.apk
+
+      - name: Publish to the sathi-latest release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release delete sathi-latest --cleanup-tag --yes || true
+          gh release create sathi-latest sathi.apk \
+            --prerelease \
+            --target "$GITHUB_SHA" \
+            --title "Sathi (latest build)" \
+            --notes "Build #${GITHUB_RUN_NUMBER} from \`${GITHUB_REF_NAME}\` at ${GITHUB_SHA::7}. Download sathi.apk on your phone and install it."

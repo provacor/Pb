@@ -25,6 +25,18 @@ Commands that need screen control ("প্রথম ভিডিওটা চা
 
 A launched app is reported as **"sent, not verified"**. Sending an intent does not prove the app is on screen, and checking that needs the Accessibility Service in Phase 2.
 
+## Install on your phone (no Android Studio needed)
+
+GitHub builds the app on every push. The newest APK is always at:
+
+**https://github.com/provacor/Pb/releases/download/sathi-latest/sathi.apk**
+
+1. Open the link on the phone and download `sathi.apk`.
+2. Open the file. If Android asks, allow "Install unknown apps" for your browser or file manager.
+3. Later builds install over the old one; your settings are kept.
+
+ফোনে লিংকটা খুলে `sathi.apk` নামান, তারপর ফাইলটা খুলে install করুন। Android জিজ্ঞেস করলে "Install unknown apps" অনুমতি দিন।
+
 ## Build and run
 
 Requirements: Android Studio Ladybug (2024.2) or newer, JDK 17+, Android SDK 35.
