@@ -8,8 +8,11 @@ import com.provacor.sathi.core.model.AgentIntent
 import com.provacor.sathi.core.model.Language
 import com.provacor.sathi.core.model.TaskContext
 import com.provacor.sathi.core.parse.CommandInterpreter
+import com.provacor.sathi.core.plan.Confirmation
+import com.provacor.sathi.core.plan.PlanStep
 import com.provacor.sathi.core.plan.TaskPlanner
 import com.provacor.sathi.core.response.Responses
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -40,12 +43,33 @@ class AgentController(
     private val _state = MutableStateFlow(AgentState())
     val state: StateFlow<AgentState> = _state.asStateFlow()
 
+    /** Steps held back until the user answers a confirmation question. */
+    private var pending: List<PlanStep>? = null
+
     suspend fun handle(command: String, lang: Language, speakReplies: Boolean) {
         val text = command.trim()
         if (text.isEmpty()) return
         speaker.stop()
         record(LogType.COMMAND, text)
         _state.value = AgentState(stage = Stage.UNDERSTANDING, command = text, log = log.snapshot())
+
+        pending?.let { held ->
+            pending = null
+            when {
+                Confirmation.isYes(text) -> {
+                    record(LogType.UNDERSTANDING, "Confirmed")
+                    runSteps(held, lang, speakReplies, firstConfirmed = true)
+                    return
+                }
+                Confirmation.isNo(text) -> {
+                    record(LogType.UNDERSTANDING, "Declined")
+                    finish(Stage.COMPLETED, Responses.cancelled(lang), speakReplies, lang)
+                    return
+                }
+                // Anything else drops the held action and is handled as a new command.
+                else -> record(LogType.UNDERSTANDING, "Confirmation dropped")
+            }
+        }
 
         val intents = interpreter.interpret(text)
         record(LogType.UNDERSTANDING, intents.joinToString { it.toString() }.ifEmpty { "(nothing)" })
@@ -62,17 +86,23 @@ class AgentController(
             return
         }
         record(LogType.PLAN, plan.steps.mapIndexed { i, s -> "${i + 1}. ${Responses.describe(s, Language.ENGLISH)}" }.joinToString("\n"))
-        _state.update {
-            it.copy(stage = Stage.EXECUTING, steps = plan.steps.map { s -> StepView(Responses.describe(s, lang), StepStatus.PENDING) })
-        }
+        runSteps(plan.steps, lang, speakReplies, firstConfirmed = false)
+    }
 
+    private suspend fun runSteps(steps: List<PlanStep>, lang: Language, speakReplies: Boolean, firstConfirmed: Boolean) {
+        _state.update {
+            it.copy(stage = Stage.EXECUTING, steps = steps.map { s -> StepView(Responses.describe(s, lang), StepStatus.PENDING) })
+        }
         val messages = mutableListOf<String>()
-        var allOk = true
-        for ((index, step) in plan.steps.withIndex()) {
+        for ((index, step) in steps.withIndex()) {
             setStep(index, StepStatus.RUNNING, null)
             record(LogType.ACTION, Responses.describe(step, Language.ENGLISH))
 
-            val outcome = runCatching { executor.execute(step, lang) }.getOrElse { e ->
+            val outcome = try {
+                executor.execute(step, lang, confirmed = firstConfirmed && index == 0)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
                 StepOutcome(StepStatus.FAILED, e.message ?: e.javaClass.simpleName)
             }
             record(if (outcome.ok) LogType.RESULT else LogType.ERROR, "${outcome.status}: ${outcome.message}")
@@ -86,16 +116,21 @@ class AgentController(
                 updatedAtMillis = clock(),
             )
 
+            if (outcome.status == StepStatus.NEEDS_CONFIRMATION) {
+                // Hold this step and the rest; the next command answers the question.
+                pending = steps.subList(index, steps.size).toList()
+                finish(Stage.CONFIRM, Responses.summary(messages), speakReplies, lang)
+                return
+            }
             if (!outcome.ok) {
-                allOk = false
-                for (rest in index + 1 until plan.steps.size) setStep(rest, StepStatus.SKIPPED, null)
-                break
+                for (rest in index + 1 until steps.size) setStep(rest, StepStatus.SKIPPED, null)
+                finish(Stage.FAILED, Responses.summary(messages), speakReplies, lang)
+                return
             }
             // Give a launched app a moment to come up before the next step acts.
-            if (index < plan.steps.lastIndex) delay(STEP_SETTLE_MILLIS)
+            if (index < steps.lastIndex) delay(STEP_SETTLE_MILLIS)
         }
-
-        finish(if (allOk) Stage.COMPLETED else Stage.FAILED, Responses.summary(messages), speakReplies, lang)
+        finish(Stage.COMPLETED, Responses.summary(messages), speakReplies, lang)
     }
 
     /** Shown when speech recognition fails before a command exists. */
@@ -125,6 +160,6 @@ class AgentController(
     }
 
     private companion object {
-        const val STEP_SETTLE_MILLIS = 800L
+        const val STEP_SETTLE_MILLIS = 400L
     }
 }

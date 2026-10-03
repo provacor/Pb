@@ -2,6 +2,9 @@ package com.provacor.sathi.ui.home
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -37,9 +40,11 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SuggestionChip
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -70,6 +75,7 @@ import com.provacor.sathi.core.model.Language
 import com.provacor.sathi.ui.components.MicOrb
 import com.provacor.sathi.ui.theme.LogTextStyle
 import com.provacor.sathi.ui.theme.StatusColors
+import com.provacor.sathi.voice.VoiceController
 import com.provacor.sathi.voice.VoiceError
 
 private val BENGALI_EXAMPLES = listOf(
@@ -99,8 +105,20 @@ fun HomeScreen(
         ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED
     }
 
+    LaunchedEffect(state.settings.handsFree, micGranted) { vm.resumeHandsFreeIfWanted(micGranted) }
+    // Android 13+ hides a service's notification without this; ask once, start either way.
+    val notificationLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {
+        vm.setHandsFree(true)
+    }
+    val enableHandsFree = {
+        val needsAsk = Build.VERSION.SDK_INT >= 33 &&
+            ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
+        if (needsAsk) notificationLauncher.launch(Manifest.permission.POST_NOTIFICATIONS) else vm.setHandsFree(true)
+    }
+
     val agent = state.agent
     val listening = state.voice.listening
+    val handsFree = state.voice.mode == VoiceController.Mode.HANDS_FREE
     val working = agent.stage in setOf(Stage.UNDERSTANDING, Stage.PLANNING, Stage.EXECUTING)
 
     Scaffold(
@@ -119,6 +137,8 @@ fun HomeScreen(
 
             if (!micGranted) {
                 Banner(stringResource(R.string.mic_missing_banner), stringResource(R.string.set_up), onOpenPermissions)
+            } else if (!state.screenControl) {
+                Banner(stringResource(R.string.a11y_missing_banner), stringResource(R.string.set_up), onOpenPermissions)
             }
 
             Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
@@ -126,7 +146,7 @@ fun HomeScreen(
                     listening = listening,
                     working = working,
                     level = state.voice.level,
-                    label = stringResource(if (listening) R.string.mic_stop else R.string.mic_start),
+                    label = stringResource(if (listening || handsFree) R.string.mic_stop else R.string.mic_start),
                     onClick = { if (micGranted) vm.toggleListening() else onOpenPermissions() },
                 )
                 Text(
@@ -147,6 +167,17 @@ fun HomeScreen(
                     )
                 }
             }
+
+            HandsFreeRow(
+                checked = handsFree,
+                onChange = { on ->
+                    when {
+                        !on -> vm.setHandsFree(false)
+                        micGranted -> enableHandsFree()
+                        else -> onOpenPermissions()
+                    }
+                },
+            )
 
             agent.command?.let { Section(stringResource(R.string.you_said)) { Text("“$it”", style = MaterialTheme.typography.titleMedium) } }
 
@@ -209,6 +240,24 @@ private fun Header(onOpenSettings: () -> Unit, onOpenPermissions: () -> Unit) {
 }
 
 @Composable
+private fun HandsFreeRow(checked: Boolean, onChange: (Boolean) -> Unit) {
+    Surface(color = MaterialTheme.colorScheme.surfaceContainer, shape = RoundedCornerShape(16.dp), modifier = Modifier.fillMaxWidth()) {
+        Row(Modifier.padding(start = 16.dp, end = 12.dp, top = 12.dp, bottom = 12.dp), verticalAlignment = Alignment.CenterVertically) {
+            Column(Modifier.weight(1f)) {
+                Text(stringResource(R.string.hands_free_title), style = MaterialTheme.typography.titleMedium)
+                Text(
+                    stringResource(R.string.hands_free_body),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+            Spacer(Modifier.width(12.dp))
+            Switch(checked = checked, onCheckedChange = onChange)
+        }
+    }
+}
+
+@Composable
 private fun Banner(text: String, action: String, onAction: () -> Unit) {
     Surface(color = MaterialTheme.colorScheme.primaryContainer, shape = RoundedCornerShape(12.dp)) {
         Row(Modifier.padding(start = 16.dp, end = 4.dp, top = 4.dp, bottom = 4.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -237,6 +286,7 @@ private fun StepRow(step: StepView) {
         StepStatus.DONE -> stringResource(R.string.status_done) to StatusColors.done(colors)
         StepStatus.SENT -> stringResource(R.string.status_sent) to StatusColors.done(colors)
         StepStatus.NEEDS_SETUP -> stringResource(R.string.status_needs_setup) to StatusColors.attention(colors)
+        StepStatus.NEEDS_CONFIRMATION -> stringResource(R.string.status_confirm) to StatusColors.attention(colors)
         StepStatus.FAILED -> stringResource(R.string.status_failed) to StatusColors.failed(colors)
         StepStatus.SKIPPED -> stringResource(R.string.status_skipped) to StatusColors.idle(colors)
     }
@@ -258,7 +308,7 @@ private fun StepRow(step: StepView) {
         Column(Modifier.weight(1f)) {
             Text(step.description, style = MaterialTheme.typography.bodyLarge)
             Text(label, style = MaterialTheme.typography.labelMedium, color = color, fontWeight = FontWeight.Medium)
-            if (step.status == StepStatus.NEEDS_SETUP || step.status == StepStatus.FAILED) {
+            if (step.status == StepStatus.NEEDS_SETUP || step.status == StepStatus.FAILED || step.status == StepStatus.NEEDS_CONFIRMATION) {
                 step.message?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = colors.onSurfaceVariant) }
             }
         }
@@ -338,6 +388,7 @@ private fun stageLabel(stage: Stage?): String = stringResource(
         Stage.UNDERSTANDING -> R.string.stage_understanding
         Stage.PLANNING -> R.string.stage_planning
         Stage.EXECUTING -> R.string.stage_executing
+        Stage.CONFIRM -> R.string.stage_confirm
         Stage.COMPLETED -> R.string.stage_completed
         Stage.FAILED -> R.string.stage_failed
     },
@@ -350,6 +401,7 @@ private fun stageColor(stage: Stage?): Color {
         null -> c.primary
         Stage.COMPLETED -> c.secondary
         Stage.FAILED -> c.error
+        Stage.CONFIRM -> c.primary
         else -> c.onBackground
     }
 }

@@ -6,6 +6,7 @@ import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import android.provider.Settings
 import android.speech.SpeechRecognizer
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -28,6 +29,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -47,6 +49,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.provacor.sathi.R
+import com.provacor.sathi.accessibility.AccessibilityBridge
 import com.provacor.sathi.core.model.Language
 import com.provacor.sathi.tts.TextToSpeechManager
 import com.provacor.sathi.ui.settings.SettingsViewModel
@@ -70,6 +73,13 @@ fun PermissionsScreen(vm: SettingsViewModel, onDone: () -> Unit) {
     }
     val recognizerAvailable = remember(tick) { SpeechRecognizer.isRecognitionAvailable(context) }
     val bengaliVoice = tts.ready && Language.BENGALI !in tts.missingVoices
+    val a11yConnected by AccessibilityBridge.connected.collectAsStateWithLifecycle()
+    val a11yOn = a11yConnected || remember(tick) { AccessibilityBridge.isEnabledInSettings(context) }
+    val notifGranted = remember(tick) {
+        Build.VERSION.SDK_INT < 33 ||
+            ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
+    }
+    val notifLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { tick++ }
 
     val micLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {
         askedMic = true
@@ -130,9 +140,27 @@ fun PermissionsScreen(vm: SettingsViewModel, onDone: () -> Unit) {
         PermissionCard(
             title = stringResource(R.string.perm_a11y_title),
             body = stringResource(R.string.perm_a11y_body),
-            status = Status.LATER,
-            okLabel = "",
+            status = if (a11yOn) Status.OK else Status.MISSING,
+            okLabel = stringResource(R.string.perm_granted),
+            actionLabel = if (a11yOn) null else stringResource(R.string.perm_open_a11y),
+            onAction = { context.startSafely(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)) },
+            note = if (a11yOn) null else stringResource(R.string.perm_a11y_steps),
+            secondaryLabel = if (a11yOn || Build.VERSION.SDK_INT < 33) null else stringResource(R.string.perm_app_info),
+            onSecondary = {
+                context.startSafely(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.fromParts("package", context.packageName, null)))
+            },
         )
+
+        if (Build.VERSION.SDK_INT >= 33) {
+            PermissionCard(
+                title = stringResource(R.string.perm_notif_title),
+                body = stringResource(R.string.perm_notif_body),
+                status = if (notifGranted) Status.OK else Status.MISSING,
+                okLabel = stringResource(R.string.perm_granted),
+                actionLabel = if (notifGranted) null else stringResource(R.string.perm_allow),
+                onAction = { notifLauncher.launch(Manifest.permission.POST_NOTIFICATIONS) },
+            )
+        }
 
         PermissionCard(
             title = stringResource(R.string.perm_files_title),
@@ -156,6 +184,9 @@ private fun PermissionCard(
     okLabel: String,
     actionLabel: String? = null,
     onAction: () -> Unit = {},
+    note: String? = null,
+    secondaryLabel: String? = null,
+    onSecondary: () -> Unit = {},
 ) {
     val colors = MaterialTheme.colorScheme
     val (statusText, statusColor) = when (status) {
@@ -178,8 +209,14 @@ private fun PermissionCard(
                 style = MaterialTheme.typography.bodyMedium,
                 color = if (status == Status.LATER) colors.onSurfaceVariant.copy(alpha = 0.8f) else colors.onSurfaceVariant,
             )
-            if (actionLabel != null) {
-                OutlinedButton(onClick = onAction) { Text(actionLabel) }
+            if (note != null) {
+                Text(note, style = MaterialTheme.typography.bodySmall, color = colors.onSurfaceVariant)
+            }
+            if (actionLabel != null || secondaryLabel != null) {
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    if (actionLabel != null) OutlinedButton(onClick = onAction) { Text(actionLabel) }
+                    if (secondaryLabel != null) TextButton(onClick = onSecondary) { Text(secondaryLabel) }
+                }
             }
         }
     }

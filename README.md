@@ -8,22 +8,25 @@ Sathi is a native Android app (Kotlin, Jetpack Compose, Material 3). It understa
 voice → speech-to-text → understand → plan → act → check → reply (text + voice)
 ```
 
-## Status: Phase 1
+## Status: Phase 2
 
 | Works now | How |
 |---|---|
-| Voice input in Bengali (`bn-BD`) or English, with live partial text | `SpeechRecognizer` |
-| Typed commands | Text field on the home screen |
-| Offline understanding of Bengali, English and mixed commands, including chains like "ইউটিউব খুলে physics wave সার্চ করো" | `core/parse/CommandInterpreter` |
-| Opening installed apps by spoken name ("ইউটিউব", "গ্যালারি", "file manager"), matched against what the phone actually has | `core/apps/AppResolver` + launcher intents |
-| Searching inside apps that accept a search intent (YouTube, Chrome, Play Store…) and web search | `ACTION_SEARCH` / `ACTION_WEB_SEARCH` |
-| Follow-up commands ("এখন physics search করো" after "ইউটিউব খোলো") | `TaskContext` short-term memory |
-| Spoken replies in Bengali or English, with pause, resume and stop | `TextToSpeech`, sentence by sentence |
-| Permission onboarding, settings, developer log (digit runs such as OTPs are masked) | Compose UI |
+| Voice input in Bengali (`bn-BD`) or English, with live partial text; a command ends 2 s after you stop talking | `SpeechRecognizer` |
+| **Always listen** (hands-free): listens, runs the command, waits for the spoken reply, listens again, also when Sathi is closed | `ListeningService` (foreground service with a notification and a Stop button) |
+| Natural Bengali, English and mixed commands, in any verb form ("ইউটিউব টা খুলতে বলছি", "ফেসবুক খুলবা") and in chains | `core/parse/CommandInterpreter` |
+| Opening apps by spoken name; in-app and web search | launcher and search intents |
+| **Screen control**: tap by label, open the Nth video or result, type, scroll, back, home, read the screen aloud | `AgentAccessibilityService` + `core/screen/ScreenQueries` |
+| Every screen step is checked afterwards: the app really came to the front, the screen really changed, the text really went in | `ActionExecutor` |
+| Asks before sending, deleting, paying, calling or posting; acts only after "হ্যাঁ" | `core/plan/Confirmation` |
+| Flashlight and volume; Wi‑Fi, Bluetooth, data and location settings panels | `AndroidDeviceControls` |
+| Spoken replies with pause, resume and stop; task memory between commands; developer log | |
 
-Commands that need screen control ("প্রথম ভিডিওটা চালাও", "পেছনে যাও", "উপরে স্ক্রল করো") or file access ("Find my latest PDF") are already understood. In this phase the agent says they are not available yet and stops, without guessing.
+### Turning on screen control
 
-A launched app is reported as **"sent, not verified"**. Sending an intent does not prove the app is on screen, and checking that needs the Accessibility Service in Phase 2.
+Android requires the user to turn on an Accessibility Service by hand: Settings → Accessibility → Sathi → On. Sathi's Permissions page has a button for it.
+
+For an APK installed from a browser, Android 13+ greys that switch out as a "restricted setting". To unblock it, go to App info → ⋮ → **Allow restricted settings**, then turn the switch on.
 
 ## Install on your phone (no Android Studio needed)
 
@@ -84,13 +87,14 @@ The agent loop never fires a chain blindly. If a step fails or needs missing set
 - The app has no `INTERNET` permission. Understanding, planning and launching run on the phone.
 - Speech-to-text and text-to-speech come from the phone's own services. Speech recognition may use the network unless "Prefer offline recognition" is on and an offline pack is installed.
 - Visible apps come from the launcher `<queries>` entry, not `QUERY_ALL_PACKAGES`.
-- The microphone is used only while the button is on.
+- The microphone is used only while the button is on, or while "Always listen" is on. In that mode a notification is shown the whole time.
+- The Accessibility Service reads the screen only while a command runs. It never reads password fields.
 
 ## Roadmap
 
 1. **Phase 1 (done):** voice, TTS, offline parser, app launching, in-app and web search, onboarding.
-2. **Phase 2:** Accessibility Service for reading the screen, tap, scroll, back, home and typing. It will also verify each launch and search through `ScreenState`.
-3. **Phase 3:** AI provider adapters for commands the offline parser can't handle, plus a confirmation step for sending, deleting and buying.
+2. **Phase 2 (done):** Accessibility Service with verified tap, type, scroll, back, home and read-screen; hands-free listening; confirmations; device controls.
+3. **Phase 3:** messaging by contact name (SMS and WhatsApp, with confirmation), and AI provider adapters for commands the offline parser can't handle.
 4. **Phase 4:** file search through MediaStore and the Storage Access Framework.
 5. **Phase 5:** PDF text extraction with chunking, summaries and Q&A.
 6. **Phase 6:** image OCR.

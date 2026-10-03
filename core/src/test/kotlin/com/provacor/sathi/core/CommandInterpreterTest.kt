@@ -31,6 +31,16 @@ class CommandInterpreterTest {
         assertEquals(listOf(OpenApp("ক্রোম")), parse("একটু ক্রোম ওপেন করো প্লিজ"))
     }
 
+    @Test fun `natural bengali verb forms`() {
+        assertEquals(listOf(OpenApp("ইউটিউব")), parse("ইউটিউব টা খুলতে বলছি"))
+        assertEquals(listOf(OpenApp("ইউটিউব")), parse("আমি ইউটিউব খুলতে চাই"))
+        assertEquals(listOf(OpenApp("ফেসবুক")), parse("ফেসবুক খুলবা"))
+        assertEquals(listOf(OpenApp("ইউটিউব")), parse("ইউটিউবটা একটু ওপেন করে দাও তো"))
+        assertEquals(listOf(OpenApp("ক্রোম")), parse("ক্রোম খুলে দাও"))
+        assertEquals(listOf(Search("physics")), parse("physics খুঁজতে বলছি"))
+        assertEquals(listOf(GoBack), parse("পিছনে যাও তো"))
+    }
+
     @Test fun `english open`() {
         assertEquals(listOf(OpenApp("youtube")), parse("Open YouTube"))
         assertEquals(listOf(OpenApp("chrome")), parse("open chrome"))

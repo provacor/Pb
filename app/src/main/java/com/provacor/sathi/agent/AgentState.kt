@@ -2,7 +2,7 @@ package com.provacor.sathi.agent
 
 import com.provacor.sathi.core.log.LogEntry
 
-enum class Stage { READY, UNDERSTANDING, PLANNING, EXECUTING, COMPLETED, FAILED }
+enum class Stage { READY, UNDERSTANDING, PLANNING, EXECUTING, CONFIRM, COMPLETED, FAILED }
 
 enum class StepStatus {
     PENDING,
@@ -14,6 +14,9 @@ enum class StepStatus {
 
     /** Needs a capability that is not set up (screen control, files). */
     NEEDS_SETUP,
+
+    /** Waiting for the user to say yes before a send/delete/pay/call. */
+    NEEDS_CONFIRMATION,
     FAILED,
     SKIPPED,
 }

@@ -51,6 +51,11 @@ sealed interface AgentIntent {
         override val capability get() = Capability.ACCESSIBILITY
     }
 
+    /** Flashlight, volume, and the switches Android only lets the user flip (Wi-Fi, Bluetooth…). */
+    data class DeviceControl(val target: DeviceTarget, val action: DeviceAction) : AgentIntent {
+        override val capability get() = Capability.NONE
+    }
+
     data object StopSpeaking : AgentIntent {
         override val capability get() = Capability.NONE
     }
@@ -66,6 +71,10 @@ sealed interface AgentIntent {
 }
 
 enum class Direction { UP, DOWN }
+
+enum class DeviceTarget { FLASHLIGHT, WIFI, BLUETOOTH, MOBILE_DATA, LOCATION, VOLUME, BRIGHTNESS }
+
+enum class DeviceAction { ON, OFF, UP, DOWN, MUTE, OPEN }
 
 enum class ItemKind { VIDEO, IMAGE, LINK, ANY }
 

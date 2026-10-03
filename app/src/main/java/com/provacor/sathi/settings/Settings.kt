@@ -8,4 +8,6 @@ data class Settings(
     val preferOffline: Boolean = false,
     val showLog: Boolean = true,
     val onboardingDone: Boolean = false,
+    /** Keep listening in the background (foreground service with a notification). */
+    val handsFree: Boolean = false,
 )

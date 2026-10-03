@@ -7,11 +7,9 @@ import com.provacor.sathi.agent.AgentState
 import com.provacor.sathi.container
 import com.provacor.sathi.settings.Settings
 import com.provacor.sathi.tts.TtsState
-import com.provacor.sathi.voice.SpeechRecognizerManager
+import com.provacor.sathi.voice.ListeningService
+import com.provacor.sathi.voice.VoiceController
 import com.provacor.sathi.voice.VoiceError
-import com.provacor.sathi.voice.VoiceEvent
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
@@ -23,6 +21,7 @@ data class VoiceUi(
     val level: Float = 0f,
     val partial: String? = null,
     val error: VoiceError? = null,
+    val mode: VoiceController.Mode = VoiceController.Mode.OFF,
 )
 
 data class HomeUiState(
@@ -30,62 +29,46 @@ data class HomeUiState(
     val voice: VoiceUi = VoiceUi(),
     val tts: TtsState = TtsState(),
     val settings: Settings = Settings(),
+    val screenControl: Boolean = false,
 )
 
 class HomeViewModel(application: Application) : AndroidViewModel(application) {
     private val container = application.container
-    private val voice = SpeechRecognizerManager(application)
-    private val partial = MutableStateFlow<String?>(null)
-    private val voiceError = MutableStateFlow<VoiceError?>(null)
-    private var task: Job? = null
+    private val voice = container.voice
 
-    private val settings: StateFlow<Settings> =
-        container.settings.settings.stateIn(viewModelScope, SharingStarted.Eagerly, Settings())
-
-    private val voiceUi = combine(voice.listening, voice.level, partial, voiceError) { listening, level, p, e ->
-        VoiceUi(listening, level, p, e)
+    private val voiceUi = combine(voice.listening, voice.level, voice.partial, voice.error, voice.mode) { l, lv, p, e, m ->
+        VoiceUi(l, lv, p, e, m)
     }
 
     val ui: StateFlow<HomeUiState> =
-        combine(container.agent.state, voiceUi, container.tts.state, settings) { agent, v, tts, s ->
-            HomeUiState(agent, v, tts, s)
+        combine(container.agent.state, voiceUi, container.tts.state, container.currentSettings, container.screen.connected) { a, v, t, s, sc ->
+            HomeUiState(a, v, t, s, sc)
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), HomeUiState())
 
-    init {
-        viewModelScope.launch {
-            voice.events.collect { event ->
-                when (event) {
-                    is VoiceEvent.Partial -> partial.value = event.text
-                    is VoiceEvent.Final -> {
-                        partial.value = null
-                        run(event.text)
-                    }
-                    is VoiceEvent.Error -> {
-                        partial.value = null
-                        voiceError.value = event.error
-                    }
-                }
-            }
-        }
-    }
-
+    /** Mic button: one command at a time, or stop when hands-free is running. */
     fun toggleListening() {
-        if (voice.listening.value) {
-            voice.stop()
-            return
+        when {
+            voice.mode.value == VoiceController.Mode.HANDS_FREE -> setHandsFree(false)
+            voice.listening.value -> voice.stopListening()
+            else -> voice.listenOnce()
         }
-        voiceError.value = null
-        partial.value = null
-        container.tts.stop()
-        container.agent.clearTask()
-        val s = settings.value
-        voice.start(s.language, s.preferOffline)
     }
 
-    fun submit(text: String) {
-        if (voice.listening.value) voice.cancel()
-        run(text)
+    fun setHandsFree(on: Boolean) {
+        val app = getApplication<Application>()
+        viewModelScope.launch { container.settings.setHandsFree(on) }
+        if (on) ListeningService.start(app) else ListeningService.stop(app)
     }
+
+    /** Called when the home screen appears: resume hands-free if the user left it on. */
+    fun resumeHandsFreeIfWanted(micGranted: Boolean) {
+        val s = container.currentSettings.value
+        if (s.handsFree && micGranted && voice.mode.value != VoiceController.Mode.HANDS_FREE) {
+            ListeningService.start(getApplication())
+        }
+    }
+
+    fun submit(text: String) = voice.submitText(text)
 
     fun pauseSpeech() {
         container.tts.pause()
@@ -97,16 +80,5 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
 
     fun stopSpeech() {
         container.tts.stop()
-    }
-
-    private fun run(text: String) {
-        voiceError.value = null
-        task?.cancel()
-        val s = settings.value
-        task = viewModelScope.launch { container.agent.handle(text, s.language, s.speakReplies) }
-    }
-
-    override fun onCleared() {
-        voice.destroy()
     }
 }

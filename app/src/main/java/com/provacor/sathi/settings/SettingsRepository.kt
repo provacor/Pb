@@ -22,6 +22,7 @@ class SettingsRepository(private val context: Context) {
             preferOffline = p[OFFLINE] ?: false,
             showLog = p[SHOW_LOG] ?: true,
             onboardingDone = p[ONBOARDED] ?: false,
+            handsFree = p[HANDS_FREE] ?: false,
         )
     }
 
@@ -30,6 +31,7 @@ class SettingsRepository(private val context: Context) {
     suspend fun setPreferOffline(on: Boolean) = context.dataStore.edit { it[OFFLINE] = on }
     suspend fun setShowLog(on: Boolean) = context.dataStore.edit { it[SHOW_LOG] = on }
     suspend fun setOnboardingDone() = context.dataStore.edit { it[ONBOARDED] = true }
+    suspend fun setHandsFree(on: Boolean) = context.dataStore.edit { it[HANDS_FREE] = on }
 
     private companion object {
         val LANGUAGE = stringPreferencesKey("language")
@@ -37,5 +39,6 @@ class SettingsRepository(private val context: Context) {
         val OFFLINE = booleanPreferencesKey("prefer_offline")
         val SHOW_LOG = booleanPreferencesKey("show_log")
         val ONBOARDED = booleanPreferencesKey("onboarding_done")
+        val HANDS_FREE = booleanPreferencesKey("hands_free")
     }
 }

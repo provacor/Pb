@@ -35,7 +35,7 @@
     <string name="status_needs_setup">Needs screen control</string>
     <string name="status_failed">Failed</string>
     <string name="status_skipped">Skipped</string>
-    <string name="sent_explainer">The app was asked to open. Checking what is on screen needs Accessibility, which comes in the next phase.</string>
+    <string name="sent_explainer">Sent, but not confirmed on screen. Turn on screen control so Sathi can check each step.</string>
 
     <string name="mic_missing_banner">Microphone access is off. You can still type commands.</string>
     <string name="set_up">Set up</string>
@@ -57,7 +57,7 @@
     <string name="perm_tts_title">Bengali voice</string>
     <string name="perm_tts_body">So Sathi can answer aloud in Bengali. Uses your phone\'s text-to-speech engine.</string>
     <string name="perm_a11y_title">Screen control (Accessibility)</string>
-    <string name="perm_a11y_body">Needed to read the screen, tap, scroll and type for you. Arrives in the next phase.</string>
+    <string name="perm_a11y_body">Lets Sathi read the screen, tap, scroll, type, go back and confirm each step worked. Also needed to open apps while Sathi is in the background.</string>
     <string name="perm_files_title">Files</string>
     <string name="perm_files_body">Needed to find photos, videos and PDFs. Arrives in a later phase.</string>
     <string name="perm_granted">Allowed</string>
@@ -82,4 +82,18 @@
     <string name="settings_test_voice">Test voice</string>
     <string name="settings_privacy_title">Privacy</string>
     <string name="settings_privacy_body">Command understanding, planning and app launching run on this phone. Sathi has no internet permission and sends nothing anywhere itself. Speech-to-text and text-to-speech are done by your phone\'s own services.</string>
+    <string name="a11y_service_description">Lets Sathi read what is on screen and tap, scroll and type for you when you give a voice command. Sathi reads the screen only while it runs a command, never reads password fields, and sends nothing off the phone.</string>
+    <string name="a11y_missing_banner">Screen control is off. Turn it on so Sathi can tap, scroll and type for you.</string>
+    <string name="hands_free_title">Always listen</string>
+    <string name="hands_free_body">Keeps listening, even when Sathi is closed. A notification shows while the mic is on.</string>
+    <string name="listening_channel">Hands-free listening</string>
+    <string name="listening_title">Sathi is listening</string>
+    <string name="listening_body">Say a command. Tap Stop to turn the microphone off.</string>
+    <string name="perm_open_a11y">Open Accessibility settings</string>
+    <string name="perm_a11y_steps">In Accessibility, open \"Sathi\" (sometimes under \"Installed apps\" or \"Downloaded apps\") and turn it on. If the switch is greyed out, tap App info, then the ⋮ menu, then \"Allow restricted settings\", and try again.</string>
+    <string name="perm_app_info">App info</string>
+    <string name="perm_notif_title">Notifications</string>
+    <string name="perm_notif_body">Shows the \"Sathi is listening\" notification in hands-free mode, so you always know the mic is on.</string>
+    <string name="stage_confirm">Waiting for your answer</string>
+    <string name="status_confirm">Needs your yes</string>
 </resources>

@@ -60,6 +60,10 @@ class SpeechRecognizerManager(private val context: Context) {
             putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 3)
             putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, context.packageName)
             putExtra(RecognizerIntent.EXTRA_PREFER_OFFLINE, preferOffline)
+            // End the command about 2 s after the speaker stops, not at the first pause.
+            putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, END_SILENCE_MILLIS)
+            putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS, END_SILENCE_MILLIS)
+            putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_MINIMUM_LENGTH_MILLIS, MIN_LISTEN_MILLIS)
         }
         _level.value = 0f
         _listening.value = true
@@ -139,6 +143,8 @@ class SpeechRecognizerManager(private val context: Context) {
 
     private companion object {
         const val TAG = "SpeechRecognizer"
+        const val END_SILENCE_MILLIS = 2_000L
+        const val MIN_LISTEN_MILLIS = 4_000L
 
         // SpeechRecognizer.ERROR_LANGUAGE_* were added in API 31; the values are stable.
         const val ERROR_LANGUAGE_NOT_SUPPORTED = 12
