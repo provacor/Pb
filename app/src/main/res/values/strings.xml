@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Sathi</string>
+    <string name="app_tagline">AI phone agent</string>
+
+    <string name="stage_ready">Ready</string>
+    <string name="stage_listening">Listening…</string>
+    <string name="stage_understanding">Understanding…</string>
+    <string name="stage_planning">Planning…</string>
+    <string name="stage_executing">Executing…</string>
+    <string name="stage_completed">Completed</string>
+    <string name="stage_failed">Couldn\'t finish</string>
+
+    <string name="mic_start">Start listening</string>
+    <string name="mic_stop">Stop listening</string>
+    <string name="hint_tap_to_speak">Tap the microphone and speak in Bengali or English</string>
+    <string name="you_said">You said</string>
+    <string name="plan_title">Plan</string>
+    <string name="response_title">Sathi</string>
+    <string name="log_title">Developer log</string>
+    <string name="try_saying">Try saying</string>
+    <string name="type_command">Type a command</string>
+    <string name="send">Send</string>
+    <string name="settings">Settings</string>
+    <string name="permissions">Permissions</string>
+    <string name="back">Back</string>
+    <string name="pause">Pause</string>
+    <string name="resume">Resume</string>
+    <string name="stop">Stop</string>
+
+    <string name="status_pending">Waiting</string>
+    <string name="status_running">Running</string>
+    <string name="status_done">Done</string>
+    <string name="status_sent">Sent · not verified</string>
+    <string name="status_needs_setup">Needs screen control</string>
+    <string name="status_failed">Failed</string>
+    <string name="status_skipped">Skipped</string>
+    <string name="sent_explainer">The app was asked to open. Checking what is on screen needs Accessibility, which comes in the next phase.</string>
+
+    <string name="mic_missing_banner">Microphone access is off. You can still type commands.</string>
+    <string name="set_up">Set up</string>
+
+    <string name="voice_error_no_speech">I didn\'t hear anything. Tap the microphone and try again.</string>
+    <string name="voice_error_network">Speech recognition needs a network connection right now. Check your internet, or turn off \"Prefer offline recognition\" in Settings.</string>
+    <string name="voice_error_permission">Microphone permission is off. Allow it on the Permissions screen.</string>
+    <string name="voice_error_busy">The speech service is busy. Wait a moment and try again.</string>
+    <string name="voice_error_unavailable">This phone has no speech recognition service. Install or update the Google app, or type your command.</string>
+    <string name="voice_error_language">Speech recognition for this language isn\'t installed. Download it in your phone\'s voice settings, or switch language in Settings.</string>
+    <string name="voice_error_other">Speech recognition stopped unexpectedly. Try again.</string>
+
+    <string name="onboarding_title">Before we start</string>
+    <string name="onboarding_body">Sathi asks only for what each feature needs. You can change any of these later.</string>
+    <string name="perm_mic_title">Microphone</string>
+    <string name="perm_mic_body">To hear your commands. Sathi listens only while the microphone button is on. Speech is converted to text by your phone\'s speech service, which may use the internet.</string>
+    <string name="perm_recognizer_title">Speech recognition service</string>
+    <string name="perm_recognizer_body">Provided by your phone (usually the Google app).</string>
+    <string name="perm_tts_title">Bengali voice</string>
+    <string name="perm_tts_body">So Sathi can answer aloud in Bengali. Uses your phone\'s text-to-speech engine.</string>
+    <string name="perm_a11y_title">Screen control (Accessibility)</string>
+    <string name="perm_a11y_body">Needed to read the screen, tap, scroll and type for you. Arrives in the next phase.</string>
+    <string name="perm_files_title">Files</string>
+    <string name="perm_files_body">Needed to find photos, videos and PDFs. Arrives in a later phase.</string>
+    <string name="perm_granted">Allowed</string>
+    <string name="perm_available">Available</string>
+    <string name="perm_missing">Not available</string>
+    <string name="perm_allow">Allow</string>
+    <string name="perm_open_settings">Open settings</string>
+    <string name="perm_install_voice">Install voice</string>
+    <string name="perm_coming">Coming next</string>
+    <string name="continue_label">Continue</string>
+
+    <string name="settings_language">Command language</string>
+    <string name="settings_language_body">The language Sathi listens for and replies in. Mixed Bengali and English works in both.</string>
+    <string name="lang_bengali">বাংলা</string>
+    <string name="lang_english">English</string>
+    <string name="settings_speak">Speak replies</string>
+    <string name="settings_speak_body">Read Sathi\'s replies aloud.</string>
+    <string name="settings_offline">Prefer offline recognition</string>
+    <string name="settings_offline_body">Keeps speech on the phone when an offline language pack is installed. Commands fail if it isn\'t.</string>
+    <string name="settings_log">Show developer log</string>
+    <string name="settings_log_body">Shows each command, plan, action and result on the home screen.</string>
+    <string name="settings_test_voice">Test voice</string>
+    <string name="settings_privacy_title">Privacy</string>
+    <string name="settings_privacy_body">Command understanding, planning and app launching run on this phone. Sathi has no internet permission and sends nothing anywhere itself. Speech-to-text and text-to-speech are done by your phone\'s own services.</string>
+</resources>
